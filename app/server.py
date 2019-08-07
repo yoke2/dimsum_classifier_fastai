@@ -9,10 +9,10 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import HTMLResponse, JSONResponse
 from starlette.staticfiles import StaticFiles
 
-export_file_url = 'https://www.dropbox.com/s/6bgq8t6yextloqp/export.pkl?raw=1'
+export_file_url = 'https://drive.google.com/uc?export=download&id=1_0s-mRhMmUqhFuCBhIWYgTGCFQ1Jo3qx'
 export_file_name = 'export.pkl'
 
-classes = ['black', 'grizzly', 'teddys']
+classes = ['char siu sou (叉烧酥)', 'chee cheong fun (猪肠粉)', 'har gow (虾饺)', 'lo bak go (萝卜糕)', 'siu mai (烧卖)']
 path = Path(__file__).parent
 
 app = Starlette()
@@ -30,9 +30,9 @@ async def download_file(url, dest):
 
 
 async def setup_learner():
-    await download_file(export_file_url, path / export_file_name)
+    await download_file(export_file_url, path/'models'/export_file_name)
     try:
-        learn = load_learner(path, export_file_name)
+        learn = load_learner(path/'models', export_file_name)
         return learn
     except RuntimeError as e:
         if len(e.args) > 0 and 'CPU-only machine' in e.args[0]:
@@ -60,7 +60,7 @@ async def analyze(request):
     img_data = await request.form()
     img_bytes = await (img_data['file'].read())
     img = open_image(BytesIO(img_bytes))
-    prediction = learn.predict(img)[0]
+    prediction = classes[int(learn.predict(img)[1])]
     return JSONResponse({'result': str(prediction)})
 
 
